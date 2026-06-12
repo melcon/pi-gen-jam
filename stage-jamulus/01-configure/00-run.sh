@@ -44,14 +44,25 @@ systemctl disable wpa_supplicant.service || true
 systemctl disable bluetooth.service || true
 systemctl mask hciuart.service || true
 
-# LightDM autologin to pi on local desktop
+# LightDM autologin to pi on local HDMI desktop
 mkdir -p /etc/lightdm/lightdm.conf.d
 cat >/etc/lightdm/lightdm.conf.d/50-autologin.conf <<'LIGHTDM'
 [Seat:*]
 autologin-user=pi
 autologin-user-timeout=0
-user-session=LXDE-pi
+user-session=LXDE
 LIGHTDM
+
+echo "/usr/sbin/lightdm" >/etc/X11/default-display-manager
+
+if [ -f /lib/systemd/system/lightdm.service ]; then
+  ln -sf /lib/systemd/system/lightdm.service /etc/systemd/system/display-manager.service
+  systemctl enable display-manager.service || true
+else
+  echo "ERROR: /lib/systemd/system/lightdm.service not found"
+  dpkg -l | grep -E 'lightdm|lxde|xserver' || true
+  exit 1
+fi
 
 # VNC password: change this on first boot
 install -d -o pi -g pi /home/pi/.vnc
