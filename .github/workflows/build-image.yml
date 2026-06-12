@@ -2,15 +2,16 @@ name: Build Raspberry Pi Jamulus Image
 
 on:
   workflow_dispatch:
-  push:
-    branches: [main]
+#  push:
+#    branches: [main]
 
 jobs:
   build:
     runs-on: ubuntu-24.04-arm
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repo
+        uses: actions/checkout@v4
       
       - name: Free disk space
         run: |
@@ -21,37 +22,116 @@ jobs:
           sudo apt-get clean
           df -h
 
-      - name: Refresh host keyrings
+      - name: Install pi-gen host dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y --reinstall ca-certificates gnupg debian-archive-keyring ubuntu-keyring
+          sudo apt-get install -y \
+            git \
+            ca-certificates \
+            gnupg \
+            debian-archive-keyring \
+            coreutils \
+            quilt \
+            parted \
+            qemu-user-static \
+            debootstrap \
+            zerofree \
+            zip \
+            dosfstools \
+            libarchive-tools \
+            libcap2-bin \
+            grep \
+            rsync \
+            xz-utils \
+            file \
+            curl \
+            bc \
+            qemu-utils \
+            kpartx \
+            gpg \
+            pigz
 
-      - uses: usimd/pi-gen-action@v1
-        with:
-          image-name: rpi4-jamulus
-          pi-gen-repository: RPi-Distro/pi-gen
-          pi-gen-version: arm64
-          release: bookworm
-          stage-list: stage0 stage1 stage2 stage-jamulus
-          compression: xz
-          enable-ssh: 1
-          username: pi
-          password: jamulus
-          disable-first-boot-user-rename: 1
-          hostname: jamulus-pi
-          keyboard-layout: us
-          timezone: America/Sao_Paulo
-          export-last-stage-only: true
-          increase-runner-disk-size: false
-          verbose-output: true
-          extra-host-dependencies: >
-            git
-            ca-certificates
-            gnupg
-            debian-archive-keyring
-            ubuntu-keyring
+      - name: Clone pi-gen
+        run: |
+          git clone --depth=1 --branch arm64 https://github.com/RPi-Distro/pi-gen.git
+
+      - name: Add custom stage
+        run: |
+          cp -r stage-jamulus pi-gen/
+
+          # pi-gen custom stages should have a prerun.sh when they follow another stage.
+          if [ ! -f pi-gen/stage-jamulus/prerun.sh ]; then
+            cat > pi-gen/stage-jamulus/prerun.sh <<'EOF'
+          #!/bin/bash -e
+          if [ ! -d "${ROOTFS_DIR}" ]; then
+            copy_previous
+          fi
+          EOF
+          fi
+
+          chmod +x pi-gen/stage-jamulus/prerun.sh
+          chmod +x pi-gen/stage-jamulus/01-configure/00-run.sh || true
+
+      - name: Configure pi-gen
+        run: |
+          cat > pi-gen/config <<'EOF'
+          IMG_NAME='rpi4-jamulus'
+          RELEASE='bookworm'
+          ARCH='arm64'
+
+          STAGE_LIST='stage0 stage1 stage2 stage-jamulus'
+
+          ENABLE_SSH=1
+          FIRST_USER_NAME='pi'
+          FIRST_USER_PASS='jamulus'
+          DISABLE_FIRST_BOOT_USER_RENAME=1
+          TIMEZONE='America/Sao_Paulo'
+          KEYBOARD_LAYOUT='us'
+
+          DEPLOY_COMPRESSION='xz'
+          EXPORT_LAST_STAGE_ONLY=1
+          EOF
+
+      - name: Show pi-gen config
+        run: |
+          cat pi-gen/config
+
+      - name: Build image
+        run: |
+          cd pi-gen
+          sudo ./build.sh
+
+      - name: List deploy output
+        run: |
+          ls -lah pi-gen/deploy
+
+#      - uses: usimd/pi-gen-action@v1
+#        with:
+#          image-name: rpi4-jamulus
+#          pi-gen-repository: RPi-Distro/pi-gen
+#          pi-gen-version: arm64
+#          release: bookworm
+#          stage-list: stage0 stage1 stage2 stage-jamulus
+#          compression: xz
+#          enable-ssh: 1
+#          username: pi
+#          password: jamulus
+#          disable-first-boot-user-rename: 1
+#          hostname: jamulus-pi
+#          keyboard-layout: us
+#          timezone: America/Sao_Paulo
+#          export-last-stage-only: true
+#          increase-runner-disk-size: false
+#          verbose-output: true
+#          extra-host-dependencies: >
+#            git
+#            ca-certificates
+#            gnupg
+#            debian-archive-keyring
+#            ubuntu-keyring
           
-      - uses: actions/upload-artifact@v4
+      - name: Upload image artifact
+        uses: actions/upload-artifact@v4
         with:
           name: rpi4-jamulus-image
           path: pi-gen/deploy/*
