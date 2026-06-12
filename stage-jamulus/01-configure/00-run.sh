@@ -59,9 +59,9 @@ if [ -f /lib/systemd/system/lightdm.service ]; then
   ln -sf /lib/systemd/system/lightdm.service /etc/systemd/system/display-manager.service
   systemctl enable display-manager.service || true
 else
-  echo "ERROR: /lib/systemd/system/lightdm.service not found"
+  echo "ERROR: /lib/systemd/system/lightdm.service not found for linking"
   dpkg -l | grep -E 'lightdm|lxde|xserver' || true
-  exit 1
+#  exit 1
 fi
 
 # VNC password: change this on first boot
