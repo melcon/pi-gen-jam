@@ -3,10 +3,14 @@
 install -m 0644 files/vncserver@.service "${ROOTFS_DIR}/etc/systemd/system/vncserver@.service"
 install -m 0644 files/novnc.service "${ROOTFS_DIR}/etc/systemd/system/novnc.service"
 install -m 0644 files/jackd.service "${ROOTFS_DIR}/etc/systemd/system/jackd.service"
-install -m 0644 files/jamulus.service "${ROOTFS_DIR}/etc/systemd/system/jamulus.service"
 
 install -d "${ROOTFS_DIR}/home/pi/.vnc"
 install -m 0755 files/xstartup "${ROOTFS_DIR}/home/pi/.vnc/xstartup"
+
+install -d "${ROOTFS_DIR}/home/pi/.config/lxsession/LXDE"
+install -m 0644 files/lxde-autostart "${ROOTFS_DIR}/home/pi/.config/lxsession/LXDE/autostart"
+
+install -m 0755 files/start-jamulus.sh "${ROOTFS_DIR}/home/pi/start-jamulus.sh"
 
 on_chroot <<'EOF'
 set -e
@@ -74,5 +78,4 @@ chown -R pi:pi /home/pi/.vnc
 systemctl enable vncserver@1.service
 systemctl enable novnc.service
 systemctl enable jackd.service
-systemctl enable jamulus.service
 EOF
