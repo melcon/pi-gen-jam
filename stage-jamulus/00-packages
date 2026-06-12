@@ -6,6 +6,7 @@ lxterminal
 lightdm
 tigervnc-standalone-server
 tigervnc-common
+tigervnc-tools
 novnc
 websockify
 jackd2
