@@ -21,6 +21,11 @@ jobs:
           sudo apt-get clean
           df -h
 
+      - name: Refresh host keyrings
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --reinstall ca-certificates gnupg debian-archive-keyring ubuntu-keyring
+
       - uses: usimd/pi-gen-action@v1
         with:
           image-name: rpi4-jamulus
@@ -44,6 +49,7 @@ jobs:
             ca-certificates
             gnupg
             debian-archive-keyring
+            ubuntu-keyring
           
       - uses: actions/upload-artifact@v4
         with:
