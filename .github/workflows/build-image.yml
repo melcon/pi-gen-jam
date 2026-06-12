@@ -11,6 +11,15 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+      
+      - name: Free disk space
+        run: |
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /usr/local/lib/android
+          sudo rm -rf /opt/ghc
+          sudo rm -rf /opt/hostedtoolcache
+          sudo apt-get clean
+          df -h
 
       - uses: usimd/pi-gen-action@v1
         with:
@@ -31,6 +40,7 @@ jobs:
           export-last-stage-only: true
           increase-runner-disk-size: true
           verbose-output: true
+          apt-purge-packages: ''
 
       - uses: actions/upload-artifact@v4
         with:
