@@ -70,7 +70,7 @@ install -d -o pi -g pi /home/pi/.vnc
 #chmod 600 /home/pi/.vnc/passwd
 chown -R pi:pi /home/pi/.vnc
 
-systemctl enable lightdm
+#systemctl enable lightdm
 systemctl enable vncserver@1.service
 systemctl enable novnc.service
 systemctl enable jackd.service
