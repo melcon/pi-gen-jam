@@ -55,8 +55,8 @@ LIGHTDM
 
 # VNC password: change this on first boot
 install -d -o pi -g pi /home/pi/.vnc
-echo "jamulus" | /usr/bin/tigervncpasswd -f >/home/pi/.vnc/passwd
-chmod 600 /home/pi/.vnc/passwd
+#echo "jamulus" | /usr/bin/tigervncpasswd -f >/home/pi/.vnc/passwd
+#chmod 600 /home/pi/.vnc/passwd
 chown -R pi:pi /home/pi/.vnc
 
 systemctl enable lightdm
