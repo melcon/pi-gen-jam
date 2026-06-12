@@ -16,7 +16,7 @@ jobs:
         with:
           image-name: rpi4-jamulus
           pi-gen-repository: RPi-Distro/pi-gen
-          pi-gen-ref: arm64
+          pi-gen-version: arm64
           release: bookworm
           stage-list: stage0 stage1 stage2 stage-jamulus
           compression: xz
@@ -25,8 +25,12 @@ jobs:
           password: jamulus
           disable-first-boot-user-rename: 1
           hostname: jamulus-pi
+          keyboard-layout: us
+          timezone: America/Sao_Paulo
+          extra-host-dependencies: sudo
           export-last-stage-only: true
           increase-runner-disk-size: true
+          verbose-output: true
 
       - uses: actions/upload-artifact@v4
         with:
