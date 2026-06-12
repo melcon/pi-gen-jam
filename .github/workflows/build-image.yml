@@ -1,0 +1,34 @@
+name: Build Raspberry Pi Jamulus Image
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: usimd/pi-gen-action@v1
+        with:
+          image-name: rpi4-jamulus
+          pi-gen-repository: RPi-Distro/pi-gen
+          pi-gen-ref: arm64
+          release: bookworm
+          stage-list: stage0 stage1 stage2 stage-jamulus
+          compression: xz
+          enable-ssh: 1
+          username: pi
+          password: jamulus
+          disable-first-boot-user-rename: 1
+          hostname: jamulus-pi
+          export-last-stage-only: true
+          increase-runner-disk-size: true
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: rpi4-jamulus-image
+          path: pi-gen/deploy/*

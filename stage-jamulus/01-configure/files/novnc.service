@@ -1,0 +1,12 @@
+[Unit]
+Description=noVNC Web VNC proxy
+After=vncserver@1.service
+Requires=vncserver@1.service
+
+[Service]
+Type=simple
+ExecStart=/usr/share/novnc/utils/novnc_proxy --listen 6080 --vnc localhost:5901
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

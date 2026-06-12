@@ -1,0 +1,14 @@
+[Unit]
+Description=JACK audio server
+After=sound.target
+
+[Service]
+User=pi
+Group=audio
+LimitRTPRIO=95
+LimitMEMLOCK=infinity
+ExecStart=/usr/bin/jackd -t 2000 -R -P95 -dalsa -dhw:USB,0 -r48000 -p64 -n4
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
