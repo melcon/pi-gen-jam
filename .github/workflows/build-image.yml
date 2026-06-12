@@ -38,10 +38,9 @@ jobs:
           timezone: America/Sao_Paulo
           extra-host-dependencies: sudo
           export-last-stage-only: true
-          increase-runner-disk-size: true
+          increase-runner-disk-size: false
           verbose-output: true
-          apt-purge-packages: ''
-
+          
       - uses: actions/upload-artifact@v4
         with:
           name: rpi4-jamulus-image
